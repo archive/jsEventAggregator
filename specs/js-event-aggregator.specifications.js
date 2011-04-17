@@ -5,38 +5,36 @@ describe("JsEventAggregator Specifications", function() {
     describe("when a message is sent", function() {
 
         var aggregator;
-        var numberOfCalls = 0;
-        var someValue;
+        var firstMethodToCall;
+        var secondMethodToCall;
 
         var SomeMessage = function(someValue) {
             this.type = "SomeMessage";
             this.someValue = someValue;
         };
 
-        var shouldBeCalled = function(message) {
-            numberOfCalls++;
-            someValue = message.someValue;
-        };
-
         beforeEach(function() {
-            aggregator = new JsEventAggregator(queueHandler);
+            firstMethodToCall = jasmine.createSpy("first");
+            secondMethodToCall = jasmine.createSpy("second");
 
-            aggregator.iListenTo(SomeMessage, shouldBeCalled, this);
-            aggregator.iListenTo(SomeMessage, shouldBeCalled, this);
+            aggregator = new JsEventAggregator(queueHandler);
+            aggregator.iListenTo(SomeMessage, firstMethodToCall, this);
+            aggregator.iListenTo(SomeMessage, secondMethodToCall, this);
         });
 
         it("all the defined listeners should receive it", function() {
             var message = new SomeMessage(100);
             aggregator.sendMessage(message);
 
-            expect(numberOfCalls).toEqual(2);
+            expect(firstMethodToCall).toHaveBeenCalled()
+            expect(secondMethodToCall).toHaveBeenCalled()
         });
 
         it("the message value should not be lost", function() {
             var message = new SomeMessage(100);
             aggregator.sendMessage(message);
 
-            expect(someValue).toEqual(100);
+            expect(firstMethodToCall).toHaveBeenCalledWith(message);
         });
 
     });
