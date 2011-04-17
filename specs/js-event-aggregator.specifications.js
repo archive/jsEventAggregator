@@ -1,41 +1,75 @@
 describe("JsEventAggregator Specifications", function() {
 
+    var queueHandler = new AsyncQueue(function(action){action();}); // this should be changed to a real stub
+
     describe("when a message is sent", function() {
 
         var aggregator;
         var numberOfCalls = 0;
+        var someValue;
 
-        var CountryHasChangedMessage = function(_countryId) {
-            this.type = "CountryHasChangedMessage";
-            this.countryId = _countryId;
+        var SomeMessage = function(someValue) {
+            this.type = "SomeMessage";
+            this.someValue = someValue;
         };
 
         var shouldBeCalled = function(message) {
             numberOfCalls++;
-            countryIdFromSentMessage = message.countryId;
+            someValue = message.someValue;
         };
 
         beforeEach(function() {
-            aggregator = new JsEventAggregator();
+            aggregator = new JsEventAggregator(queueHandler);
 
-            aggregator.iListenTo(CountryHasChangedMessage, shouldBeCalled, this);
-            aggregator.iListenTo(CountryHasChangedMessage, shouldBeCalled, this);
+            aggregator.iListenTo(SomeMessage, shouldBeCalled, this);
+            aggregator.iListenTo(SomeMessage, shouldBeCalled, this);
         });
 
         it("all the defined listeners should receive it", function() {
-            var message = new CountryHasChangedMessage(100);
+            var message = new SomeMessage(100);
             aggregator.sendMessage(message);
 
             expect(numberOfCalls).toEqual(2);
         });
 
         it("the message value should not be lost", function() {
-            var message = new CountryHasChangedMessage(100);
+            var message = new SomeMessage(100);
             aggregator.sendMessage(message);
 
-            expect(countryIdFromSentMessage).toEqual(100);
+            expect(someValue).toEqual(100);
         });
 
     });
+
+    describe("when a message is sent", function() {
+
+        var aggregator;
+        var shouldNotHaveBeenCalled;
+
+        var SomeMessage = function() {
+            this.type = "SomeMessage";
+        };
+
+        var SomeOtherMessage = function() {
+            this.type = "SomeOtherMessage";
+        };
+
+
+        beforeEach(function() {
+            aggregator = new JsEventAggregator(queueHandler);
+            shouldNotHaveBeenCalled = true;
+
+            aggregator.iListenTo(SomeMessage, function(){ shouldNotHaveBeenCalled = false}, this);
+        });
+
+        it("if there is no defined listeners, no one should get it", function() {
+            var message = new SomeOtherMessage();
+            aggregator.sendMessage(message);
+
+            expect(shouldNotHaveBeenCalled).toBeTruthy();
+        });
+
+    });
+
 
 });

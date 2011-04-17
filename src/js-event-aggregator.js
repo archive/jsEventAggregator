@@ -1,5 +1,5 @@
 var JsEventAggregator = function(queueHandler) {
-    this._queueHandler = queueHandler || new AsyncQueue();
+    this._queueHandler = queueHandler;
     this._aggregator = {};
 };
 

@@ -27,7 +27,7 @@ describe("AsyncQueue Specifications", function(){
             expect(firstActionWasCalled).toBeTruthy(); 
         });
         
-        it("the first action should be called when processing the queue", function(){
+        it("the second action should be called when processing the queue", function(){
             queue.run();            
                         
             expect(secondActionWasCalled).toBeTruthy();
