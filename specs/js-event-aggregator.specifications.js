@@ -44,7 +44,7 @@ describe("JsEventAggregator Specifications", function() {
     describe("when a message is sent", function() {
 
         var aggregator;
-        var shouldNotHaveBeenCalled;
+        var mock = {};
 
         var SomeMessage = function() {
             this.type = "SomeMessage";
@@ -54,19 +54,18 @@ describe("JsEventAggregator Specifications", function() {
             this.type = "SomeOtherMessage";
         };
 
-
         beforeEach(function() {
-            aggregator = new JsEventAggregator(queueHandler);
-            shouldNotHaveBeenCalled = true;
+            mock.someFunction = jasmine.createSpy();
 
-            aggregator.iListenTo(SomeMessage, function(){ shouldNotHaveBeenCalled = false}, this);
+            aggregator = new JsEventAggregator(queueHandler);
+            aggregator.iListenTo(SomeMessage, mock.someFunction, mock)
         });
 
         it("if there is no defined listeners, no one should get it", function() {
             var message = new SomeOtherMessage();
             aggregator.sendMessage(message);
 
-            expect(shouldNotHaveBeenCalled).toBeTruthy();
+            expect(mock.someFunction).not.toHaveBeenCalled();
         });
 
     });
